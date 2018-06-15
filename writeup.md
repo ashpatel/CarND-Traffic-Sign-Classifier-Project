@@ -127,9 +127,9 @@ While I tried 30,40 and 50 Epochs, I settled on 25 as the additional iterations 
 #### 4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
 My final model results were:
-* training set accuracy of 0.997
-* validation set accuracy of 0.943
-* test set accuracy of 0.931
+* training set accuracy of 0.995
+* validation set accuracy of 0.941
+* test set accuracy of 0.922
 
 I started with the Original LeNet architecture from the previous exercise.
 I added an extra full layer so that the drop off from 400 to 43 could be more gradual. Additionally I was seeing very early overfitting with high early testing accuracy vs validation accuracy. I add two dropout layers to the last two fully connected layers. This helped get my accuracy over 0.93
