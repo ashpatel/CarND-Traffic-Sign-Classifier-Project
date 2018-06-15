@@ -21,7 +21,10 @@ The goals / steps of this project are the following:
 
 [datadistro]: ./writeup_images/Data_distro.png "Visualization"
 [newdatadistro]: ./writeup_images/New_data_distro.png "Visualization"
-[webtestimages]: ./writeup_images/web_test_images.png "Grayscaling"
+[webtestimages]: ./writeup_images/web_test_images.png "Test Images"
+[trainingbefore]: ./writeup_images/training_before.png "Training Before"
+[trainingafter]: ./writeup_images/training_after.png "Training After"
+[probabilities]: ./writeup_images/probabilities.png "Probabilities"
 [image3]: ./examples/random_noise.jpg "Random Noise"
 [image4]: ./examples/placeholder.png "Traffic Sign 1"
 [image5]: ./examples/placeholder.png "Traffic Sign 2"
@@ -71,9 +74,10 @@ For each sign type, I found all the images for that sign type and then I simply 
 
 This generated about an additional 18000 new training images, bringing the total number of training images to 52,979
 
-The new distribution of the training set can be see in the following visualization.
+The training set distribution before and after can be seen in the following two visualizations.
 
-![newdatadistro]
+![alt text][trainingbefore]    -----------> ![alt text][trainingafter]
+
 
 Additionally I tried turning all the images to grayscale, but this didn't have as major impact on the accuracy, as augmenting the dataset with extra images, so the only other processing I did was normalized the RGB values between -1 to +1 (instead of 0 to 255).
 
@@ -94,86 +98,82 @@ My final model consisted of the following layers:
 | RELU					|												|
 | Max pooling	      	| 2x2 stride,  valid padding, outputs 14x14x6 |
 | Convolution 3x3	    | 1x1 stride, valid padding, outputs 10x10x16    |
-| RELU         |             |
+| RELU         | Activation |
 |Max pooling  | 2x2 stride, valid padding, outputs 5x5x16   |
 | Flatten   | input 5x5x16, output 400 |
 | Fully connected		| input 400, output 300								|
-| RELU         |             |
+| RELU         | Activation |
+| Fully connected		| input 300, output 200								|
+| RELU         | Activation |
 | Dropout   | keep 75%   |
-| Softmax				| etc.        									|
-|						|												|
-|						|												|
+| Fully connected		| input 200, output 100								|
+| RELU         | Activation |
+| Dropout   | keep 75%   |
+| Fully connected		| input 100, output 43	(Classification)							|
+| Softmax				| with cross entropy, AdamOptimizer |
 
 
 
 #### 3. Describe how you trained your model. The discussion can include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
 
-To train the model, I used an ....
+The model was trained on a AWS GPU install (G2 Large).
+
+The model was trained using the AdamOptimizer and a learning rate of 0.001. The model was trained in 25 Epochs with a batch size of 128.
+
+As I was using a large AWS GPU instance with more memory, I experimented with increasing the batch size to 256 and 512, but this reduced my accuracy, so I kept the batch size at 128.
+
+While I tried 30,40 and 50 Epochs, I settled on 25 as the additional iterations didn't yield any additional accuracy for the considerably longer training time.
 
 #### 4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
 My final model results were:
-* training set accuracy of ?
-* validation set accuracy of ?
-* test set accuracy of ?
+* training set accuracy of 0.997
+* validation set accuracy of 0.943
+* test set accuracy of 0.931
 
-If an iterative approach was chosen:
-* What was the first architecture that was tried and why was it chosen?
-* What were some problems with the initial architecture?
-* How was the architecture adjusted and why was it adjusted? Typical adjustments could include choosing a different model architecture, adding or taking away layers (pooling, dropout, convolution, etc), using an activation function or changing the activation function. One common justification for adjusting an architecture would be due to overfitting or underfitting. A high accuracy on the training set but low accuracy on the validation set indicates over fitting; a low accuracy on both sets indicates under fitting.
-* Which parameters were tuned? How were they adjusted and why?
-* What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer help with creating a successful model?
-
-If a well known architecture was chosen:
-* What architecture was chosen?
-* Why did you believe it would be relevant to the traffic sign application?
-* How does the final model's accuracy on the training, validation and test set provide evidence that the model is working well?
-
+I started with the Original LeNet architecture from the previous exercise.
+I added an extra full layer so that the drop off from 400 to 43 could be more gradual. Additionally I was seeing very early overfitting with high early testing accuracy vs validation accuracy. I add two dropout layers to the last two fully connected layers. This helped get my accuracy over 0.93
 
 ### Test a Model on New Images
 
-#### 1. Choose five German traffic signs found on the web and provide them in the report. For each image, discuss what quality or qualities might be difficult to classify.
+#### 1. Choose at least five German traffic signs found on the web and provide them in the report. For each image, discuss what quality or qualities might be difficult to classify.
 
-Here are five German traffic signs that I found on the web:
+The follow are 10 additional German Traffic Signs that I found on the web.
 
-![alt text][image4] ![alt text][image5] ![alt text][image6]
-![alt text][image7] ![alt text][image8]
+![alt text][webtestimages]
 
-The first image might be difficult to classify because ...
+I was unable to find images that were as badly lit as some of the images in the training data, but due to the resizing of the images to 32x32, there was heavy pixelation and loss of shapes in some of the signs that might make it hard for the model to work on some of the images.
 
 #### 2. Discuss the model's predictions on these new traffic signs and compare the results to predicting on the test set. At a minimum, discuss what the predictions were, the accuracy on these new predictions, and compare the accuracy to the accuracy on the test set (OPTIONAL: Discuss the results in more detail as described in the "Stand Out Suggestions" part of the rubric).
+
+The new images were preprocessed in the same way as the training set (we only ended doing normalization) and then run thru the model to get the predicted signs.
 
 Here are the results of the prediction:
 
 | Image			        |     Prediction	        					|
 |:---------------------:|:---------------------------------------------:|
-| Stop Sign      		| Stop sign   									|
-| U-turn     			| U-turn 										|
-| Yield					| Yield											|
-| 100 km/h	      		| Bumpy Road					 				|
-| Slippery Road			| Slippery Road      							|
+| Children Crossing    		| Children Crossing 	|
+| Speed Limit (30km/h)  | Speed Limit (30km/h) 			|
+| Road Work					| Road Work				|
+| No Passing	      		| No Passing		|
+| Beware Ice/Snow		| `Dangerous Curve To The Left`      							|
+| Turn Left Ahead		| Turn Left Ahead      							|
+| Right of Way at Next Intersection		| Right of Way at Next Intersection      							|
+| Speed Limit (30km/h)		| Speed Limit (30km/h)      							|
+| Vehicles over 3.5 tons prohibited		| Vehicles over 3.5 tons prohibited      							|
+| Road Work		| Road Work      							|
 
 
-The model was able to correctly guess 4 of the 5 traffic signs, which gives an accuracy of 80%. This compares favorably to the accuracy on the test set of ...
+
+The model was able to correctly guess 9 of the 10 traffic signs, which gives an accuracy of 90%. Very similar to the accuracy of the test set.
 
 #### 3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
 
-![alt text][webtestimages]
+The visualization of the top 5 softmax probabilities is presented below for all the additional test images.
 
-The code for making predictions on my final model is located in the 11th cell of the Ipython notebook.
+![probabilities]
 
-For the first image, the model is relatively sure that this is a stop sign (probability of 0.6), and the image does contain a stop sign. The top five soft max probabilities were
-
-| Probability         	|     Prediction	        					|
-|:---------------------:|:---------------------------------------------:|
-| .60         			| Stop sign   									|
-| .20     				| U-turn 										|
-| .05					| Yield											|
-| .04	      			| Bumpy Road					 				|
-| .01				    | Slippery Road      							|
-
-
-For the second image ...
+For most of the images the softmax probability was 1.0 and for the ones where it wasn't 100% sure the probability was 0.95 and higher. For the one where it predicted incorrectly (Beware Ice/Snow), it the highest prediction was 0.68, plus it had additional predictions for other labels.
 
 ### (Optional) Visualizing the Neural Network (See Step 4 of the Ipython notebook for more details)
 #### 1. Discuss the visual output of your trained network's feature maps. What characteristics did the neural network use to make classifications?
